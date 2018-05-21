@@ -1,1 +1,1 @@
-# This repository contains all projects for the [https://www.thinkful.com/bootcamp/data-science/flexible/](Thinkful Data Science) bootcamp.
+# This repository contains all projects for the [Thinkful Data Science](https://www.thinkful.com/bootcamp/data-science/flexible/) bootcamp.
