@@ -1,1 +1,0 @@
-# This repository contains all projects for the Thinkful Data Science bootcamp.
