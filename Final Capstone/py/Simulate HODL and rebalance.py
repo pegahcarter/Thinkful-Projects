@@ -50,7 +50,7 @@ def simulate_rebalance(df):
 
 	for col, coin_list, coin_list_index in zip(cols, coin_lists, coin_lists_indexes):
 
-		fees, trade_count, trades_eliminated, taxes_owed = 0, 0, 0, 0
+		fees, trade_count, trades_eliminated, taxes_rebalanced = 0, 0, 0, 0
 		daily_totals = [start_amt]
 
 		# Reduce historical_prices array to only the coins used in the simulation
@@ -95,7 +95,7 @@ def simulate_rebalance(df):
 
 				price_difference = small_historical_prices[num_day, h_index] - purchase_prices[h_index]
 
-				taxes_owed += (price_difference * h_quantity * 0.25)
+				taxes_rebalanced += (price_difference * h_quantity * 0.25)
 
 				# adjust avg purchase price for bought coin
 				purchase_prices[l_index] = (purchase_prices[l_index] * coin_amts[l_index] + small_historical_prices[num_day, l_index] * l_quantity)/(coin_amts[l_index] + l_quantity)
@@ -109,15 +109,25 @@ def simulate_rebalance(df):
 
 		# Document important features of the simulations
 		end_price_HODL = hodl_simulations[len(hodl_simulations)-1, num_simulation]
+		taxes_HODL = (end_price_HODL - 5000) * .25
+
 		end_price_rebalanced = daily_totals[len(daily_totals)-1]
-		simulation_summary[num_simulation] = [col, fees, taxes_owed, trade_count, trades_eliminated, end_price_HODL, end_price_rebalanced]
+		simulation_summary[num_simulation] = [col, fees, trade_count, trades_eliminated, taxes_HODL, end_price_HODL, taxes_rebalanced, end_price_rebalanced]
+
 		rebalance_simulations[num_simulation] = daily_totals
 		num_simulation += 1
 
 	rebalance_simulations = pd.DataFrame(np.transpose(rebalance_simulations), columns=cols, index=sim_dates)
 	rebalance_simulations.to_csv(file_path +  'rebalanced.csv')
 
-	simulation_summary = pd.DataFrame(simulation_summary,columns=['portfolio','total_fees','taxes_owed','num_trades','num_trades_saved','end_price_HODL','end_price_rebalanced'])
+	simulation_summary = pd.DataFrame(simulation_summary,columns=['portfolio',
+																  'total_fees',
+																  'num_trades',
+																  'num_trades_saved',
+																  'taxes_HODL',
+																  'end_price_HODL',
+																  'taxes_rebalanced',
+																  'end_price_rebalanced'])
 	simulation_summary.to_csv(file_path + 'summary.csv', index=False)
 
 
