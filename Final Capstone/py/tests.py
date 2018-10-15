@@ -34,10 +34,64 @@ except:
 	path = 'C:/Users/Carter/Documents/' # note: add rest of path
 
 historical_data = pd.read_csv(path + 'historical prices.csv')
+
 hodl_df = pd.read_csv(path + 'hodl.csv')
 rebalanced_df = pd.read_csv(path + 'rebalanced.csv')
-summary_df = pd.read_csv(path + 'summary.csv')
 
+# list of coins used in each portfolio simulation
+coins = historical_data.columns[1:].tolist()
+cols = hodl_df.columns[1:]
+coin_lists = [i.split('-') for i in cols]
+
+# End prices
+summary_df = pd.read_csv(path + 'summary.csv')
+end_price_HODL = np.array(summary_df['end_price_HODL'] - summary_df['taxes_HODL'])
+end_price_rebalanced = np.array(summary_df['end_price_rebalanced'] - summary_df['taxes_rebalanced'])
+performance = list((end_price_rebalanced - end_price_HODL) / end_price_HODL)
+
+# Dataframe to compare coin impact on outperforming HODL
+df = pd.DataFrame(columns=coins)
+df['beat market'] = performance
+df['beat market'] = df['beat market'] > 0
+df.fillna(False, inplace=True)
+
+# Fill Dataframe with coins used for each simulation
+for i in range(len(coin_lists)):
+	for coin in coin_lists[i]:
+		df.loc[i, coin] = True
+
+# Feature importance analysis
+tree = RandomForestClassifier()
+X = df[coins]
+Y = df['beat market']
+tree.fit(X, Y)
+
+feature_importance = tree.feature_importances_
+feature_importance = 100 * (feature_importance / max(feature_importance))
+temp = feature_importance.tolist()
+
+# Take only top 10 features
+top_feats = sorted(feature_importance,reverse=True)[:10]
+sorted_features = np.array([temp.index(feat) for feat in top_feats])
+pos = np.arange(sorted_features.shape[0]) + .5
+plt.barh(pos, feature_importance[sorted_features], align='center')
+plt.yticks(pos, X.columns[sorted_features])
+plt.show()
+
+historical_data['XRP'].std(ddof=0)
+historical_data['BTC'].rolling(2).std(ddof=0)
+
+
+
+
+
+
+
+
+
+
+
+# Date range used for simulations
 start_date, end_date = historical_data['date'][0], historical_data['date'][len(historical_data)-1]
 start_date = time.strftime('%m/%d/%Y', time.gmtime(start_date))
 end_date = time.strftime('%m/%d/%Y', time.gmtime(end_date))
