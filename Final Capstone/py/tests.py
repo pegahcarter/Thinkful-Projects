@@ -31,7 +31,7 @@ try:
 	path = 'C:/Users/18047/Documents/Project/Final Capstone/data/'
 	historical_data = pd.read_csv(path + "historical prices.csv")
 except:
-	path = 'C:/Users/Carter/Documents/' # note: add rest of path
+	path = 'C:/Users/Carter/Documents/GitHub/Thinkful__Projects/Final Capstone/data/'
 
 historical_data = pd.read_csv(path + 'historical prices.csv')
 
@@ -78,8 +78,31 @@ plt.barh(pos, feature_importance[sorted_features], align='center')
 plt.yticks(pos, X.columns[sorted_features])
 plt.show()
 
-historical_data['XRP'].std(ddof=0)
-historical_data['BTC'].rolling(2).std(ddof=0)
+diffs, coin_coeff = {}, {}
+
+dates_used = list(hodl_df[hodl_df.columns[0]])
+historical_data = historical_data.loc[historical_data['date'].isin(dates_used)]
+
+for coin in coins:
+	coin_data = np.array(historical_data[coin])
+
+	diffs[coin] = (coin_data.max() - coin_data.min()) / coin_data.min()
+	coin_coeff[coin] = (coin_data.std() / coin_data.mean())
+
+sorted_diffs = sorted(diffs.items(), reverse=True, key=lambda x: x[1])
+sorted_coin_coeff = sorted(coin_coeff.items(), reverse=True, key=lambda x: x[1])
+
+sorted_diffs[:10]
+sorted_coin_coeff[:10]
+
+
+
+
+
+
+
+
+
 
 
 
