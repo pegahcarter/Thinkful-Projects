@@ -3,7 +3,6 @@ import sys
 import ccxt
 import numpy as np
 import pandas as pd
-import inspect
 import random
 
 def simulate_HODL():
@@ -56,10 +55,12 @@ def simulate_rebalance(df):
 		# Reduce historical_prices array to only the coins used in the simulation
 		small_historical_prices = historical_prices[:, coin_list_index]
 
+		# Initial purchase prices for coins
+		purchase_prices = small_historical_prices[0].tolist()
+
 		# Calculate starting coin amounts
 		coin_amts = amt_each / small_historical_prices[0]
 
-		purchase_prices = small_historical_prices[0].tolist()
 
 		# Simulate each day
 		for num_day in range(1,len(historical_prices)):
@@ -120,14 +121,21 @@ def simulate_rebalance(df):
 	rebalance_simulations = pd.DataFrame(np.transpose(rebalance_simulations), columns=cols, index=sim_dates)
 	rebalance_simulations.to_csv(file_path +  'rebalanced.csv')
 
-	simulation_summary = pd.DataFrame(simulation_summary,columns=['portfolio',
-																  'total_fees',
-																  'num_trades',
-																  'num_trades_saved',
-																  'taxes_HODL',
-																  'end_price_HODL',
-																  'taxes_rebalanced',
-																  'end_price_rebalanced'])
+    simulation_summary = pd.DataFrame(
+        simulation_summary,
+        columns=
+        [
+            'portfolio',
+            'total_fees',
+            'num_trades',
+            'num_trades_saved',
+            'taxes_HODL',
+            'end_price_HODL',
+            'taxes_rebalanced',
+            'end_price_rebalanced'
+        ]
+    )
+
 	simulation_summary.to_csv(file_path + 'summary.csv', index=False)
 
 
@@ -136,7 +144,6 @@ if __name__ == '__main__':
 	file_path = 'C:/Users/18047/Documents/Project/Final Capstone/data/'
 	historical_prices = pd.read_csv(file_path + 'historical prices.csv')
 
-	sim_dates = list(historical_prices['date'])
 	coins = historical_prices.columns.tolist()[1:]
 
 	# Exclude date column from historical prices

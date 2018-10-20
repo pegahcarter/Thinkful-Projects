@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 # pull epoch dates used for market caps
-market_cap = pd.read_csv('C:/Users/18047/Documents/Project/Final Capstone/data/historical market cap.csv')
+market_cap = pd.read_csv('../data/historical market cap.csv')
 dates_epoch = market_cap['date']
 date_range = [time.strftime('%m/%d/%Y', time.localtime(day)) for day in dates_epoch]
 
@@ -24,10 +24,9 @@ tickers = [coin + '/BTC' for coin in coins]
 coins.insert(0, 'BTC')
 tickers.insert(0, 'BTC/USDT')
 
-df = [list(dates_epoch)]
-coins_to_simulate = []
+df = pd.DataFrame(index=[list(dates_epoch)])
 
-for coin, ticker in zip(coins, tickers):
+for ticker in tickers:
 	# Pull information if ticker exists
 	try:
 		data = np.array(primary_exchange.fetch_ohlcv(ticker, '1d'))[:, :2]
@@ -38,20 +37,10 @@ for coin, ticker in zip(coins, tickers):
 				   for day, price in data \
 				   if time.strftime('%m/%d/%Y', time.localtime(day/1000)) in date_range]
 
-	# Only add coin if it has a full year of price data
+	# Only add coin if it has price data for the whole time frame
 	if len(coin_prices) == len(date_range):
-		df.append(coin_prices)
-		coins_to_simulate.append(coin)
-
-# Add date to the front of coins to create column names
-coins_to_simulate.insert(0, 'date')
-
-df_np = np.array(df)
+		df[ticker[:ticker.find('/')]] = coin_prices
 
 # Since all coins are in BTC denomination, multiply by BTC price to get $ price
-df_np[2:] *= df[1]
-
-new_df = pd.DataFrame(df_np.transpose(), columns=coins_to_simulate)
-
-new_df.set_index('date', drop=True, inplace=True)
-new_df.to_csv('C:/Users/18047/Documents/Project/Final Capstone/data/historical prices.csv')
+df[1:] *= df[0]
+df.to_csv('C:/Users/18047/Documents/Project/Final Capstone/data/historical prices.csv')
