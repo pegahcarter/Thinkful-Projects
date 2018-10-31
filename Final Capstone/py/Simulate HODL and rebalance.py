@@ -4,6 +4,17 @@ import ccxt
 import numpy as np
 import pandas as pd
 import random
+# ------------------------------------------------------------------------------
+list1 = ['a', 'b', 'c', 'd']
+list2 = [1, 2, 3, 4]
+list3 = [['A','B'],['C','D'],[5,6],[7,8]]
+
+for num, (a, b, c) in enumerate(zip(list1,list2,list3)):
+	print(num, a, b, c)
+
+
+
+# ------------------------------------------------------------------------------
 
 def simulate_HODL():
 	simulations = pd.DataFrame(index=sim_dates)
@@ -141,8 +152,8 @@ def simulate_rebalance(df):
 
 if __name__ == '__main__':
 
-	file_path = 'C:/Users/18047/Documents/Project/Final Capstone/data/'
-	historical_prices = pd.read_csv(file_path + 'historical prices.csv')
+	file_path = 'C:/Users/18047/Documents/Github/Thinkful Projects/Final Capstone/data/'
+	historical_prices = pd.read_csv(file_path + 'historical_prices.csv')
 
 	coins = historical_prices.columns.tolist()[1:]
 
